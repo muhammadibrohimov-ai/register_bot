@@ -1,7 +1,11 @@
+# Additional modules
+
 import asyncio
 import logging
 import database
 import check
+
+# Main module
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import (
@@ -14,16 +18,9 @@ from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
-
+# Token and Dispatcher
 
 from environs import Env
-
-class Register(StatesGroup):
-    fullname = State()
-    year = State()
-    address = State()
-    email = State()
-    password = State()
 
 env = Env()
 env.read_env()
@@ -31,7 +28,7 @@ env.read_env()
 TOKEN = env.str("TOKEN")
 dp = Dispatcher()
 
-status = True
+# Keyboards
 
 start_keyboards = ReplyKeyboardMarkup(
     keyboard=[
@@ -41,8 +38,25 @@ start_keyboards = ReplyKeyboardMarkup(
     one_time_keyboard=True
 )
 
+phone = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Jo'natish", request_contact=True)]
+    ],
+    resize_keyboard=True
+)
+
+# Finite State Machine subclass
+
+class Register(StatesGroup):
+    fullname = State()
+    year = State()
+    address = State()
+    email = State()
+    password = State()
+
 @dp.message(CommandStart())
-async def cmd_start(message: Message, state=FSMContext):
+async def cmd_start(message: Message, state:FSMContext):
+    global current_user
     current_user = message.from_user
     state.set_state(Register.fullname)
     await message.answer(
@@ -50,12 +64,25 @@ async def cmd_start(message: Message, state=FSMContext):
         reply_markup=start_keyboards
     )
 
-@dp.message(Register.name)
+
 @dp.message(F.text=='uz')
-async def register_uz(message:Message, state=FSMContext):
+async def register_uz(message:Message, state:FSMContext):
+    await state.set_state(Register.fullname)
+    await message.answer("To'liq isminginzi kiritng (Ali Aliyev Alijon o'g'li (qizi)): ")
     
-@dp.message(Register.year)
-async def get
+@dp.message(Register.fullname)
+async def get_fullname(message:Message, state:FSMContext):
+    fullname = message.text
+    status = await check.check_fullname(fullname=fullname)
+    if status:
+        await state.update_data(fullname=fullname)
+        await state.set_state(Register.year)
+        await message.answer(
+            text="Tug'ilgan yilingizni kiritng: ",
+        )
+    else:
+        await message.answer("Ismingiz not'og'ri formatda kiritlgan ekan qayta uruning (Ali Aliyev Alijon o'g'li (qizi)): ")
+
 
 async def get_users():
     query = "SELECT * FROM users;"
