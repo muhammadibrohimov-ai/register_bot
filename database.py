@@ -1,9 +1,10 @@
+import asyncio
 import sqlite3 as sql
 
 def get_connetion():
     return sql.connect("register_bot.db")
 
-def create_table_users():
+async def create_table_users():
     with get_connetion() as db:
         dbc = db.cursor()
 
@@ -13,6 +14,7 @@ def create_table_users():
             telegram_id INTEGER NOT NULL UNIQUE,
             fullname VARCHAR(150) NOT NULL,
             year INTEGER,
+            phone_number VARCHAR(50),
             address VARCHAR(150),
             email VARCHAR(150) NOT NULL UNIQUE,
             password VARCHAR(100) NOT NULL
@@ -21,7 +23,7 @@ def create_table_users():
         dbc.execute(query)
         db.commit()
 
-def get_data(query):
+async def get_data(query):
     try:
         query.lower().startswith("select")
         with get_connetion() as db:
