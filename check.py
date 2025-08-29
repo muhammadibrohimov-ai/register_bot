@@ -57,3 +57,49 @@ async def check_password(password:str):
 
     else:
         return False
+
+def return_message_text(c:int, lang:str):
+
+    match c:
+        case 1:
+            if lang == "uz":
+                return "To'liq isminginzi kiritng (Ali Aliyev Alijon o'g'li (qizi)): "
+            else:
+                return "Enter your fullname (Ali Aliyev Alijon o'g'li (qizi)): "
+
+        case 2:
+            if lang == "uz":
+                return "Ismingiz not'og'ri formatda kiritlgan ekan, qayta uruning (Ali Aliyev Alijon o'g'li (qizi)): "
+            else:
+                return "Your name name is not in the right format, retry again (Ali Aliyev Alijon o'g'li (qizi))!"
+
+        case 3:
+            if lang =="uz":
+                return "Tug'ilgan yilingizni kiritng (1950-2025): "
+            else:
+                return "Enter your birth year (1950-2025):"
+
+        case 4:
+            if lang == 'uz':
+                return "Yilingiz noto'gri formatda ekan (1950-2025): "
+
+            else:
+                return "Your birthdate is not in the right format, retry again (1950-2025): "
+
+        case 5:
+            if lang =="uz":
+                return "Yashash manzilingizni kiriting: "
+            else:
+                return "Enter your address: "
+
+        case 6:
+            if lang=='uz':
+                return "Address ni xato formatda kiritngiz , qayta urining!"
+            else:
+                return "Address is not in the right format, retry again!"
+
+        case 7:
+            if lang == 'uz':
+                return
+            else:
+                return
