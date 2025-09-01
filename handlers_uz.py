@@ -33,7 +33,7 @@ class Register(StatesGroup):
     email = State()
     password = State()
 
-user_lang = "uz"
+user_lang = 'uz'
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state:FSMContext):
@@ -45,11 +45,15 @@ async def cmd_start(message: Message, state:FSMContext):
         reply_markup=start_keyboards
     )
 
-
+@router.message(F.text=='en')
 @router.message(F.text=='uz')
 async def register_uz(message:Message, state:FSMContext):
+
+    global user_lang
+    
     if not message.text == "uz":
         user_lang = "en"
+
 
     await state.set_state(Register.fullname)
 
@@ -57,8 +61,11 @@ async def register_uz(message:Message, state:FSMContext):
         text = check.return_message_text(1, user_lang)
     )
     
+    print(database.return_users())
+    
 @router.message(Register.fullname)
 async def get_fullname(message:Message, state:FSMContext):
+    global user_lang
     fullname = message.text
     status = await check.check_fullname(fullname=fullname)
     
@@ -76,6 +83,7 @@ async def get_fullname(message:Message, state:FSMContext):
         
 @router.message(Register.year)
 async def get_year(message:Message, state:FSMContext):
+    global user_lang
     year = message.text
     status = await check.check_year(year=year)
     
@@ -93,6 +101,7 @@ async def get_year(message:Message, state:FSMContext):
         
 @router.message(Register.address)
 async def get_address(message:Message, state:FSMContext):
+    global user_lang
     address = message.text
     status = await check.check_address(address=address)
 
@@ -100,7 +109,7 @@ async def get_address(message:Message, state:FSMContext):
         await state.update_data(address=address)
         await state.set_state(Register.email)
         await message.answer(
-            text = "Emailnigizni kiriting: "
+            text = check.return_message_text(c=7, lang=user_lang)
         )
 
     else: 
@@ -111,6 +120,7 @@ async def get_address(message:Message, state:FSMContext):
     
 @router.message(Register.email)
 async def get_email(message:Message, state:FSMContext):
+    global user_lang
     email = message.text
     status = await check.check_email(email)
     
@@ -118,26 +128,29 @@ async def get_email(message:Message, state:FSMContext):
         await state.update_data(email=email)
         await state.set_state(Register.password)
         await message.answer(
-            text='Parol yarating: '
+            text= check.return_message_text(c=9, lang=user_lang)
         )
     
     else:
         await message.answer(
-            text="Email to'g'ri formatda emas, yoki allaqachon foydalanilgan, qayta urining!"
+            text=check.return_message_text(c=8, lang=user_lang)
         )
         
-phone = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Jo'natish", request_contact=True)]
-    ],
-    resize_keyboard=True,
-    one_time_keyboard=True
-)
+
         
 @router.message(Register.password)
 async def get_password(message:Message, state:FSMContext):
+    global user_lang
     password = message.text
     status = await check.check_password(password=password)
+    
+    phone = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=check.return_message_text(c=10, lang=user_lang), request_contact=True)]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+    )
     
     if status:
         await state.update_data(password=password)
@@ -145,30 +158,35 @@ async def get_password(message:Message, state:FSMContext):
         data = await state.get_data()
         await state.clear()
         await message.answer(
-            text="Telefon raqamingizni jo'nating",
+            text=check.return_message_text(c=12, lang=user_lang),
             reply_markup=phone
         )
     
     else:
         await message.answer(
-            text="Parolingiz bizning talabimizga mos kelmadi, qayta urining!"
+            text=check.return_message_text(c=11, lang=user_lang)
         )
 
 @router.message(F.contact)
 async def get_phone(message:Message, state:FSMContext):
+    global user_lang
+    
     phone = message.contact.phone_number
+    
     data['phone_number'] = phone
-    await message.answer(
-        text=f'Ro\'yxatdan muvaffaqiyatli o\'tdingiz {data}'
-    )
+    data['telegram_id'] = current_user.id
+    
+    status = check.check_is_registered(data)
+    
+    if status:
+        await message.answer(
+            text = check.return_message_text(13, user_lang)
+        )
+    else:
+        await message.answer(
+            text = check.return_message_text(14, user_lang)
+        )
 
 
-async def get_users():
-    query = "SELECT * FROM users;"
-    data = await database.get_data(query)
 
-    if not data or data == []:
-        await database.create_table_users()
-        data = []
 
-    return data

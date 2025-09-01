@@ -1,37 +1,82 @@
 import asyncio
 import sqlite3 as sql
 
-def get_connetion():
-    return sql.connect("register_bot.db")
 
-async def create_table_users():
-    with get_connetion() as db:
+def get_ceonnection():
+    return sql.connect("bot.db")
+
+def create_table():
+    with get_ceonnection() as db:
         dbc = db.cursor()
-
-        query = f'''
+        query = '''
         CREATE TABLE IF NOT EXISTS users(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            telegram_id INTEGER NOT NULL UNIQUE,
+            telegram_id INT NOT NULL UNIQUE,
             fullname VARCHAR(150) NOT NULL,
-            year INTEGER,
-            phone_number VARCHAR(50),
+            year INT,
             address VARCHAR(150),
-            email VARCHAR(150) NOT NULL UNIQUE,
-            password VARCHAR(100) NOT NULL
+            email VARCHAR(150) NOT NULL,
+            password VARCHAR(20) NOT NULL,
+            phone_number VARCHAR(30)
         );
         '''
         dbc.execute(query)
         db.commit()
+        
+def register_user(data: dict) -> bool:
+    create_table()
+    
+    keys = ", ".join(data.keys())
+    placeholders = ", ".join(["?"] * len(data))   
+    values = tuple(data.values())               
 
-async def get_data(query):
+    query = f"INSERT INTO users ({keys}) VALUES ({placeholders});"
+    
     try:
-        query.lower().startswith("select")
-        with get_connetion() as db:
+        with get_ceonnection() as db:
             dbc = db.cursor()
-            dbc.execute(query)
+            dbc.execute(query, values)
+            db.commit()
+        return True            
+    except Exception as e:
+        print("Xato:", e)
+        return False
+
+    
+def return_users():
+    create_table()
+    
+    try:
+        with get_ceonnection() as db:
+            dbc = db.cursor()
+            
+            dbc.execute("SELECT * FROM users;")
+            
             data = dbc.fetchall()
-
+            
+            if not data:
+                return []
+            else:
+                return data
+        
     except:
-        data = []
-
-    return data
+        return []
+    
+def get_data(query):
+    create_table()
+    try:
+        with get_ceonnection() as db:
+            dbc = db.cursor()
+            
+            dbc.execute(query)
+            
+            data = dbc.fetchall()
+            
+            if not data:
+                return []
+            else:
+                return data
+        
+    except:
+        return []
+    

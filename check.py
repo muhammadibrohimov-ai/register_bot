@@ -27,7 +27,7 @@ async def check_email(email:str): # 5
     if len(email.split("@")[0]) < 5:
         return False
     
-    users = await database.get_data("SELECT * FROM users;")
+    users = database.get_data("SELECT * FROM users;")
     
     for user in users:
         if user[5] == email:
@@ -100,6 +100,64 @@ def return_message_text(c:int, lang:str):
 
         case 7:
             if lang == 'uz':
-                return
+                return "Emailnigizni kiriting: "
             else:
-                return
+                return "Enter your email: "
+            
+        case 8:
+            if lang == 'uz':
+                return "Email to'g'ri formatda emas, yoki allaqachon foydalanilgan, qayta urining!"
+            else:
+                return "Email is not in the right format or already used, retry again!"
+            
+        case 9:
+            if lang =="uz":
+                return 'Parol yarating: '
+            else:
+                return  "Create password: "
+            
+        case 10:
+            if lang =="uz":
+                return "Jo'natish"
+            else:
+                return "Send"
+            
+        case 11:
+            if lang == 'uz':
+                return "Parolingiz bizning talabimizga mos kelmadi, qayta urining!"
+            else:
+                return "Your paswwrod is not secure as we wanted, retry again!"
+            
+        case 12:
+            if lang == 'uz':
+                return "Telefon raqamingizni jo'nating: "
+            else:
+                return "Send your phone number: "
+            
+        case 13:
+            if lang == 'uz':
+                return 'Ro\'yxatdan muvaffaqiyatli o\'tdingiz!'
+            else:
+                return "You have signed up sucessfully!"
+        
+        case 14:
+            if lang == 'uz':
+                return 'Registratsiyada nimadur xato ketdi, iltimos qayta urining!'
+            else:
+                return "Something went wrong wiht registration, please try again!"    
+            
+        
+def check_is_registered(data):
+    print(data)
+    return database.register_user(data)
+
+    
+    
+            
+def return_user_info(data:dict) -> str:
+    
+    info = ''
+    for key, value in data.items():
+        info += f'{key} - {value}\n'
+        
+    return info
