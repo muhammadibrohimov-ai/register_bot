@@ -161,3 +161,12 @@ def return_user_info(data:dict) -> str:
         info += f'{key} - {value}\n'
         
     return info
+
+def check_user(id):
+    users = database.return_users()
+    
+    for user in users:
+        if user[1] == id:
+            return True
+        
+    return False

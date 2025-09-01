@@ -55,13 +55,20 @@ async def register_uz(message:Message, state:FSMContext):
         user_lang = "en"
 
 
-    await state.set_state(Register.fullname)
-
-    await message.answer(
-        text = check.return_message_text(1, user_lang)
-    )
+    status = check.check_user(current_user.id)
     
-    print(database.return_users())
+    if  status:
+    
+        await message.answer("Salom")
+        
+    else:
+        await state.set_state(Register.fullname)
+
+        await message.answer(
+            text = check.return_message_text(1, user_lang)
+        )
+    
+        print(database.return_users())
     
 @router.message(Register.fullname)
 async def get_fullname(message:Message, state:FSMContext):
