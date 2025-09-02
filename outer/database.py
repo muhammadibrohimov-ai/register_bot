@@ -3,7 +3,7 @@ import sqlite3 as sql
 
 
 def get_ceonnection():
-    return sql.connect("bot.db")
+    return sql.connect(r"C:\Users\miuceo\PycharmProjects\telegram_bots\registration_bot\outer\bot.db")
 
 def create_table():
     with get_ceonnection() as db:

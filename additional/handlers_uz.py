@@ -1,28 +1,15 @@
 from aiogram import Router, F
-from aiogram.types import (
-    Message,
-    ReplyKeyboardMarkup,
-    KeyboardButton,
-    ReplyKeyboardRemove
-)
+from aiogram.types import Message
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
-import database
-import check
+import outer.database as database
+import outer.check as check
+from .buttons import *
 
 router = Router()
 
-# Keyboards
-
-start_keyboards = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="uz"), KeyboardButton(text='en')]
-    ],
-    resize_keyboard=True,
-    one_time_keyboard=True
-)
 
 # Finite State Machine subclass
 
@@ -35,31 +22,38 @@ class Register(StatesGroup):
 
 user_lang = 'uz'
 
+
+
 @router.message(CommandStart())
 async def cmd_start(message: Message, state:FSMContext):
     global current_user
     current_user = message.from_user
-    await state.set_state(Register.fullname)
     await message.answer(
         text="Namoz vaqtlari botga xush kelibsiz!\nWelcome to the prayer times bot\n\nTilni kiritng:\nChoose the language: ",
         reply_markup=start_keyboards
     )
 
-@router.message(F.text=='en')
-@router.message(F.text=='uz')
+@router.message(F.text.in_(['uz', 'en']))
 async def register_uz(message:Message, state:FSMContext):
 
     global user_lang
     
     if not message.text == "uz":
         user_lang = "en"
+        
+    else:
+        user_lang = 'uz'
 
 
     status = check.check_user(current_user.id)
     
     if  status:
-    
-        await message.answer("Salom")
+        
+        
+        await message.answer(
+            text = check.return_message_text(c=15,lang=user_lang),
+            reply_markup= await return_times(user_lang)
+        )
         
     else:
         await state.set_state(Register.fullname)
@@ -151,13 +145,7 @@ async def get_password(message:Message, state:FSMContext):
     password = message.text
     status = await check.check_password(password=password)
     
-    phone = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text=check.return_message_text(c=10, lang=user_lang), request_contact=True)]
-    ],
-    resize_keyboard=True,
-    one_time_keyboard=True
-    )
+    
     
     if status:
         await state.update_data(password=password)
@@ -166,7 +154,7 @@ async def get_password(message:Message, state:FSMContext):
         await state.clear()
         await message.answer(
             text=check.return_message_text(c=12, lang=user_lang),
-            reply_markup=phone
+            reply_markup=return_phone(user_lang)
         )
     
     else:
@@ -187,13 +175,28 @@ async def get_phone(message:Message, state:FSMContext):
     
     if status:
         await message.answer(
-            text = check.return_message_text(13, user_lang)
+            text = check.return_message_text(13, user_lang),
+            reply_markup=await return_times(user_lang)
         )
     else:
         await message.answer(
-            text = check.return_message_text(14, user_lang)
+            text = check.return_message_text(14, user_lang),
+            reply_markup=await return_times(user_lang)
         )
 
+@router.message(Command("help"))
+async def cmd_help(message:Message):
+    await message.answer(
+        text = "Ushbu bot namoz vaqtlarini aniqlash uchun ishlatilinadi\nIltimos kerakli vaqtlarni va hududlarni tanlang:",
+        reply_markup=await return_times(user_lang)
+    )
 
 
+
+
+
+
+
+def get_lang():
+    return user_lang
 

@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime as dt
-import database
+import outer.database as database
 
 async def check_fullname(fullname: str):
     
@@ -63,9 +63,9 @@ def return_message_text(c:int, lang:str):
     match c:
         case 1:
             if lang == "uz":
-                return "To'liq isminginzi kiritng (Ali Aliyev Alijon o'g'li (qizi)): "
+                return "Siz hali registratsiyadan ot'magansiz!\nIltimos registratsiyadan o'ting\n\nTo'liq isminginzi kiritng (Ali Aliyev Alijon o'g'li (qizi)): "
             else:
-                return "Enter your fullname (Ali Aliyev Alijon o'g'li (qizi)): "
+                return "You are not signed up yet!\nPlease sign up\n\nEnter your fullname (Ali Aliyev Alijon o'g'li (qizi)): "
 
         case 2:
             if lang == "uz":
@@ -145,6 +145,19 @@ def return_message_text(c:int, lang:str):
                 return 'Registratsiyada nimadur xato ketdi, iltimos qayta urining!'
             else:
                 return "Something went wrong wiht registration, please try again!"    
+            
+        case 15:
+            if lang == 'uz':
+                return "Namoz vaqtlarini bilish uchun kerakli tugmani bosing!"
+            else:
+                return "To get prayer times please select right button!"
+            
+        case 16:
+            if lang =='uz':
+                return "Kerakli hududni tanla: "
+            else:   
+                return "Choose needed region: "
+                
             
         
 def check_is_registered(data):
